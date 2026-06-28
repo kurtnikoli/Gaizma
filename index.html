@@ -437,6 +437,7 @@ body.cursor-on.cursor-out #cursorGlow,body.cursor-on.cursor-out #cursorDot{opaci
         </ul>
       </div>
       <div class="form-grid" id="intake">
+        <input type="checkbox" name="botcheck" id="botcheck" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true" />
         <div class="field"><label for="f-name">Your name</label><input id="f-name" type="text" placeholder="Jane Doe" /></div>
         <div class="field"><label for="f-email">Work email</label><input id="f-email" type="email" placeholder="jane@brand.com" /></div>
         <div class="field"><label for="f-brand">Brand / company</label><input id="f-brand" type="text" placeholder="Brand name" /></div>
@@ -480,6 +481,14 @@ body.cursor-on.cursor-out #cursorGlow,body.cursor-on.cursor-out #cursorDot{opaci
 
 <script>
 document.getElementById('yr').textContent=new Date().getFullYear();
+/* ===== INTAKE FORM SETUP ============================================
+   Submissions are emailed to your inbox via Web3Forms (free, no backend).
+   1. Go to https://web3forms.com  ->  "Create Access Key"
+   2. Enter hi@gaizma.com  ->  the access key is emailed to that address
+   3. Paste it below (the key is safe to be public).
+   If left as-is, the form falls back to opening an email draft.
+==================================================================== */
+var WEB3FORMS_KEY="YOUR_ACCESS_KEY_HERE";
 var root=document.documentElement;
 addEventListener('scroll',function(){document.getElementById('hdr').classList.toggle('scrolled',scrollY>20)});
 var tog=document.getElementById('navtoggle'),links=document.getElementById('navlinks');
@@ -497,13 +506,51 @@ document.getElementById('submit').addEventListener('click',function(){
   var v=function(id){return (document.getElementById(id).value||'').trim()};
   var name=v('f-name'),email=v('f-email'),brand=v('f-brand'),site=v('f-site'),budget=v('f-budget'),timeline=v('f-timeline'),goal=v('f-goal');
   var pfs=Array.prototype.map.call(document.querySelectorAll('#platforms .pf.on'),function(p){return p.textContent}).join(', ')||'-';
-  var msg=document.getElementById('msg');
+  var msg=document.getElementById('msg'),btn=document.getElementById('submit');
   var re=/^[^@\s]+@[^@\s]+\.[^@\s]+$/;
   if(!name||!email||!brand){msg.className='msg err';msg.textContent='Please add your name, email, and brand.';return}
   if(!re.test(email)){msg.className='msg err';msg.textContent='That email doesn\u2019t look right.';return}
-  var body='New partner enquiry, Gaizma\n\nName: '+name+'\nEmail: '+email+'\nBrand: '+brand+'\nWebsite: '+(site||'-')+'\nPlatforms: '+pfs+'\nMonthly budget: '+(budget||'-')+'\nTimeline: '+(timeline||'-')+'\n\nGoals:\n'+(goal||'-');
-  window.location.href='mailto:hi@gaizma.com?subject='+encodeURIComponent('Partner enquiry, '+brand)+'&body='+encodeURIComponent(body);
-  msg.className='msg ok';msg.textContent='Opening your email app. Hit send and we\u2019ll be in touch.';
+  if(document.getElementById('botcheck') && document.getElementById('botcheck').checked){return}
+
+  var hasKey = WEB3FORMS_KEY && WEB3FORMS_KEY.indexOf('YOUR_ACCESS_KEY')===-1;
+
+  if(!hasKey){
+    var body='New partner enquiry, Gaizma\n\nName: '+name+'\nEmail: '+email+'\nBrand: '+brand+'\nWebsite: '+(site||'-')+'\nPlatforms: '+pfs+'\nMonthly budget: '+(budget||'-')+'\nTimeline: '+(timeline||'-')+'\n\nGoals:\n'+(goal||'-');
+    window.location.href='mailto:hi@gaizma.com?subject='+encodeURIComponent('Partner enquiry, '+brand)+'&body='+encodeURIComponent(body);
+    msg.className='msg ok';msg.textContent='Opening your email app. Add your Web3Forms key to skip this step.';
+    return;
+  }
+
+  var btnText=btn.innerHTML;
+  btn.disabled=true; btn.style.opacity='.7'; btn.innerHTML='Sending\u2026';
+  msg.className='msg'; msg.textContent='';
+
+  fetch('https://api.web3forms.com/submit',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body:JSON.stringify({
+      access_key:WEB3FORMS_KEY,
+      subject:'New partner enquiry, '+brand,
+      from_name:'Gaizma website',
+      replyto:email,
+      Name:name, Email:email, Brand:brand,
+      Website:site||'-', Platforms:pfs,
+      'Monthly budget':budget||'-', Timeline:timeline||'-',
+      Goals:goal||'-'
+    })
+  })
+  .then(function(r){return r.json()})
+  .then(function(d){
+    if(d && d.success){
+      msg.className='msg ok'; msg.textContent='Thanks, '+name.split(' ')[0]+'. Your details are in. We\u2019ll be in touch soon.';
+      ['f-name','f-email','f-brand','f-site','f-goal','f-budget','f-timeline'].forEach(function(id){document.getElementById(id).value=''});
+      document.querySelectorAll('#platforms .pf.on').forEach(function(p){p.classList.remove('on')});
+    } else {
+      msg.className='msg err'; msg.textContent=(d&&d.message)||'Something went wrong. Please email hi@gaizma.com directly.';
+    }
+  })
+  .catch(function(){msg.className='msg err'; msg.textContent='Network issue. Please try again, or email hi@gaizma.com.';})
+  .finally(function(){btn.disabled=false; btn.style.opacity=''; btn.innerHTML=btnText;});
 });
 
 (function(){
