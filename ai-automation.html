@@ -93,10 +93,10 @@ section{position:relative; padding:92px 0; overflow:hidden}
 /* marquee */
 .marquee-band{background:var(--ink); border-top:3px solid var(--ink); border-bottom:3px solid var(--ink); padding:13px 0; overflow:hidden; transform:rotate(-2deg) scale(1.04); margin:24px 0; position:relative; z-index:3; -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent); mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
 .marquee-band.alt{transform:rotate(1.6deg) scale(1.04); margin-top:-26px; background:var(--magenta)}
-.mq{display:flex; gap:32px; width:max-content; animation:scroll 28s linear infinite; will-change:transform}
+.mq{display:flex; width:max-content; animation:scroll 28s linear infinite; will-change:transform}
 .mq.r{animation-direction:reverse}
 .mq:hover{animation-play-state:paused}
-.mq span{font-family:"Baloo 2",sans-serif; font-weight:800; font-size:1.35rem; text-transform:uppercase; color:var(--yellow); display:flex; align-items:center; gap:32px; white-space:nowrap}
+.mq span{font-family:"Baloo 2",sans-serif; font-weight:800; font-size:1.35rem; text-transform:uppercase; color:var(--yellow); display:flex; align-items:center; gap:32px; white-space:nowrap; margin-right:32px}
 .marquee-band.alt .mq span{color:var(--ink)}
 .mq span::after{content:"✦"; font-size:.95rem}
 @keyframes scroll{from{transform:translateX(0)} to{transform:translateX(-50%)}}
