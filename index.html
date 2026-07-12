@@ -355,7 +355,7 @@ button,input,select,textarea{font-family:inherit;color:inherit}
       </form>
       <div class="footer-strip">
         <span>&#169; 2026 Kraftics</span>
-        <a href="mailto:hello@kraftics.com" data-hover>hello@kraftics.com</a>
+        <a href="mailto:hi@kraftics.com" data-hover>hi@kraftics.com</a>
       </div>
     </div>
   </section>
@@ -657,10 +657,10 @@ button,input,select,textarea{font-family:inherit;color:inherit}
         } else { throw new Error(); }
       }).catch(function(){
         note.className = 'note';
-        note.textContent = 'Something went wrong. Email us at hello@kraftics.com';
+        note.textContent = 'Something went wrong. Email us at hi@kraftics.com';
       });
     } else {
-      location.href = 'mailto:hello@kraftics.com?subject=' +
+      location.href = 'mailto:hi@kraftics.com?subject=' +
         encodeURIComponent('Project inquiry from ' + d.name) +
         '&body=' + encodeURIComponent(body.replace(/\*\*/g, ''));
       note.className = 'note ok';
